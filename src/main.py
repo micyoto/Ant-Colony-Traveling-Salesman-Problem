@@ -9,6 +9,10 @@ from graph import Graph
 from aco import AntColony
 import utils
 
+# Em src/main.py
+
+
+
 # ==============================================================================
 # CONFIGURAÇÃO DE CAMINHOS
 # ==============================================================================
@@ -20,12 +24,19 @@ ARQUIVO_SAIDA   = os.path.join(DIRETORIO_PROJETO, 'output', 'resultado.txt')
 # ==============================================================================
 # PARÂMETROS DO ACO
 # ==============================================================================
-NUM_FORMIGAS    = 30     # População
-NUM_ITERACOES   = 100    # Gerações
-ALFA            = 1.0    # Peso do Feromônio
-BETA            = 3.0    # Peso da Visibilidade
-EVAPORACAO      = 0.5    # Taxa de evaporação
-INTENSIDADE_Q   = 100.0  # Depósito de feromônio
+
+# Aumente as iterações para dar tempo de convergir
+NUM_ITERACOES = 100  # Ou 200 se quiser ver mais evolução
+
+# Aumente as formigas para melhorar a exploração (sugestão do artigo: m=n)
+NUM_FORMIGAS = 52    
+
+# Ajuste fino (opcional, mas recomendado nos artigos de Dorigo)
+ALFA = 1.0           # Peso do Feromônio
+BETA = 5.0           # Peso da Visibilidade (aumentar Beta ajuda em mapas grandes)
+EVAPORACAO = 0.5     # Taxa de evaporação
+INTENSIDADE_Q = 100.0 # Depósito de feromônio
+
 
 def main():
     print("=== Trabalho 02: TSP com Colônia de Formigas (Snapshot + Convergência) ===")
