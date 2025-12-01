@@ -1,12 +1,9 @@
 # src/utils.py
 import matplotlib.pyplot as plt
+import os
 
 def ler_cidades(caminho_arquivo):
-    """
-    Lê o arquivo de texto e converte para estrutura de dados.
-    Formato esperado: ID X Y
-    Requisito: Leitura de arquivo de texto.
-    """
+    """Lê o arquivo de texto e converte para lista de cidades."""
     cidades = []
     try:
         with open(caminho_arquivo, 'r') as f:
@@ -25,10 +22,7 @@ def ler_cidades(caminho_arquivo):
         exit()
 
 def salvar_resultados(caminho_saida, melhor_rota, melhor_distancia, cidades):
-    """
-    Salva os resultados em arquivo txt.
-    Requisito: Saída em arquivo de texto.
-    """
+    """Salva o relatório final em txt."""
     try:
         with open(caminho_saida, 'w') as f:
             f.write("RELATORIO FINAL - OTIMIZACAO POR COLONIA DE FORMIGAS\n")
@@ -36,46 +30,72 @@ def salvar_resultados(caminho_saida, melhor_rota, melhor_distancia, cidades):
             f.write(f"Melhor Distancia Encontrada: {melhor_distancia:.4f}\n")
             f.write("====================================================\n")
             f.write("Sequencia de Cidades (Rota):\n")
-            
-            # Converte índices da rota para os IDs originais das cidades
             rota_ids = [cidades[i]['id'] for i in melhor_rota]
             f.write(" -> ".join(rota_ids))
             f.write("\n")
-            
-        print(f"--> Resultados salvos com sucesso em: {caminho_saida}")
+        print(f"--> Relatório salvo em: {caminho_saida}")
     except Exception as e:
         print(f"Erro ao salvar arquivo: {e}")
 
-def plotar_graficos(graph, melhor_rota, historico_convergencia):
+def salvar_snapshot(graph, rota, geracao, distancia):
     """
-    Gera os gráficos solicitados no artigo (Rota e Convergência).
+    Gera e salva uma imagem da rota atual (Snapshot).
+    Usado para mostrar a evolução a cada X gerações.
     """
-    # Prepara dados para o plot da rota (precisa fechar o ciclo adicionando o início ao fim)
+    # Garante que a pasta output existe
+    caminho_dir = os.path.join(os.path.dirname(__file__), '..', 'output')
+    os.makedirs(caminho_dir, exist_ok=True)
+    
+    rota_plot = rota + [rota[0]]
+    x = [graph.cidades[i]['x'] for i in rota_plot]
+    y = [graph.cidades[i]['y'] for i in rota_plot]
+    
+    plt.figure(figsize=(6, 6))
+    plt.plot(x, y, 'o-b', alpha=0.6) # Cidades em azul
+    plt.plot(x, y, '-r', linewidth=1) # Rota em vermelho
+    
+    plt.title(f'Geração {geracao} - Distância: {distancia:.2f}')
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    
+    nome_arquivo = os.path.join(caminho_dir, f'snap_geracao_{geracao:03d}.png')
+    plt.savefig(nome_arquivo)
+    plt.close() # Fecha para economizar memória
+
+def plotar_graficos(graph, melhor_rota, historico_melhor, historico_media):
+    """
+    Gera o gráfico final com Mapa da Rota e Convergência Comparativa.
+    """
     rota_plot = melhor_rota + [melhor_rota[0]]
     x = [graph.cidades[i]['x'] for i in rota_plot]
     y = [graph.cidades[i]['y'] for i in rota_plot]
     
     plt.figure(figsize=(14, 6))
     
-    # Gráfico 1: Mapa das Cidades e Rota
+    # Gráfico 1: Melhor Rota Final
     plt.subplot(1, 2, 1)
-    plt.plot(x, y, 'o-r', markersize=8, linewidth=1.5) # Rota em vermelho
-    plt.title('Melhor Rota Encontrada')
-    plt.xlabel('Coordenada X')
-    plt.ylabel('Coordenada Y')
+    plt.plot(x, y, 'o-k', markersize=6) # Pontos pretos
+    plt.plot(x, y, '-r', linewidth=2, label='Melhor Caminho')
+    plt.title(f'Melhor Rota Final (Dist: {historico_melhor[-1]:.2f})')
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.legend()
     
-    # Anota o ID das cidades no gráfico
-    for i, c in enumerate(graph.cidades):
-        plt.text(c['x'], c['y'], f" {c['id']}", fontsize=10, color='blue')
+    for c in graph.cidades:
+        plt.text(c['x'], c['y'], f" {c['id']}", fontsize=9, color='blue')
 
-    # Gráfico 2: Curva de Convergência
+    # Gráfico 2: Convergência (Melhor vs Média)
     plt.subplot(1, 2, 2)
-    plt.plot(historico_convergencia, color='green')
-    plt.title('Convergência (Evolução da Melhor Distância)')
-    plt.xlabel('Iterações (Gerações)')
-    plt.ylabel('Distância Total')
-    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.plot(historico_media, color='blue', linestyle='--', alpha=0.5, label='Média da População')
+    plt.plot(historico_melhor, color='green', linewidth=2, label='Melhor Global')
     
-    plt.tight_layout()
-    plt.savefig('grafico_resultado.png') # Salva imagem para o artigo
+    plt.title('Evolução da Colônia (Convergência)')
+    plt.xlabel('Gerações')
+    plt.ylabel('Distância Total')
+    plt.grid(True, linestyle=':', alpha=0.7)
+    plt.legend()
+    
+    # Salva na pasta output
+    caminho_img = os.path.join(os.path.dirname(__file__), '..', 'output', 'grafico_final.png')
+    plt.savefig(caminho_img)
     plt.show()

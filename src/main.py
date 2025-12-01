@@ -2,7 +2,7 @@
 import os
 import sys
 
-# Adiciona o diretório atual ao path para garantir importações locais funcionem
+# Ajuste de path para importação local
 sys.path.append(os.path.dirname(__file__))
 
 from graph import Graph
@@ -10,60 +10,49 @@ from aco import AntColony
 import utils
 
 # ==============================================================================
-# AJUSTE DE CAMINHOS (FIX)
+# CONFIGURAÇÃO DE CAMINHOS
 # ==============================================================================
-# Pega o diretório onde este arquivo (main.py) está localizado: .../seu_projeto/src
 DIRETORIO_SRC = os.path.dirname(os.path.abspath(__file__))
-
-# Volta um nível para chegar na raiz do projeto: .../seu_projeto
 DIRETORIO_PROJETO = os.path.dirname(DIRETORIO_SRC)
-
-# Monta os caminhos absolutos baseados na estrutura do projeto
 ARQUIVO_ENTRADA = os.path.join(DIRETORIO_PROJETO, 'input', 'cidades.txt')
 ARQUIVO_SAIDA   = os.path.join(DIRETORIO_PROJETO, 'output', 'resultado.txt')
-IMG_SAIDA       = os.path.join(DIRETORIO_PROJETO, 'output', 'grafico_resultado.png')
 
 # ==============================================================================
-# CONFIGURAÇÕES
+# PARÂMETROS DO ACO
 # ==============================================================================
-# Parâmetros do Algoritmo Genético (ACO)
-NUM_FORMIGAS    = 30     # Tamanho da população
-NUM_ITERACOES   = 100    # Critério de parada
-ALFA            = 1.0    # Importância do Rastro (Feromônio)
-BETA            = 3.0    # Importância da Visibilidade (Distância)
+NUM_FORMIGAS    = 30     # População
+NUM_ITERACOES   = 100    # Gerações
+ALFA            = 1.0    # Peso do Feromônio
+BETA            = 3.0    # Peso da Visibilidade
 EVAPORACAO      = 0.5    # Taxa de evaporação
-INTENSIDADE_Q   = 100.0  # Constante de depósito
+INTENSIDADE_Q   = 100.0  # Depósito de feromônio
 
 def main():
-    print("=== Trabalho 02: Otimização Combinatória (TSP com ACO) ===")
-    print(f"Diretório base do projeto detectado: {DIRETORIO_PROJETO}")
+    print("=== Trabalho 02: TSP com Colônia de Formigas (Snapshot + Convergência) ===")
     
-    # 1. Validação do Arquivo
+    # 1. Validação
     if not os.path.exists(ARQUIVO_ENTRADA):
-        print(f"\n[ERRO CRÍTICO] Arquivo não encontrado!")
-        print(f"O script esperava encontrar o arquivo aqui: {ARQUIVO_ENTRADA}")
-        print("Verifique se você criou a pasta 'input' e o arquivo 'cidades.txt' dentro dela.")
-        return # Para a execução
+        print(f"[ERRO] Arquivo não encontrado: {ARQUIVO_ENTRADA}")
+        return
 
-    lista_cidades = utils.ler_cidades(ARQUIVO_ENTRADA)
+    # 2. Setup
+    cidades = utils.ler_cidades(ARQUIVO_ENTRADA)
+    grafo = Graph(cidades)
     
-    # 2. Inicialização do Grafo
-    grafo = Graph(lista_cidades)
-    
-    # 3. Configuração e Execução do ACO
     aco = AntColony(
-        graph=grafo,
+        graph=grafo, 
         num_formigas=NUM_FORMIGAS,
-        alfa=ALFA,
-        beta=BETA,
-        evaporacao=EVAPORACAO,
+        alfa=ALFA, 
+        beta=BETA, 
+        evaporacao=EVAPORACAO, 
         q=INTENSIDADE_Q
     )
     
+    # 3. Execução
+    # (Os snapshots serão salvos automaticamente na pasta output durante a execução)
     aco.run(NUM_ITERACOES)
     
-    # 4. Resultados
-    # Verifica se a pasta output existe, se não, cria
+    # 4. Resultados Finais
     os.makedirs(os.path.dirname(ARQUIVO_SAIDA), exist_ok=True)
     
     utils.salvar_resultados(
@@ -73,16 +62,12 @@ def main():
         grafo.cidades
     )
     
-    print("\nGerando gráficos...")
-    # Pequeno ajuste necessário no utils.py para aceitar o caminho da imagem
-    # Mas se você não alterou o utils, ele vai salvar na pasta onde o terminal está.
-    # Para garantir, edite o utils.py ou apenas deixe como está que vai funcionar,
-    # mas a imagem pode cair na raiz.
-    
+    print("\nGerando gráfico final de convergência...")
     utils.plotar_graficos(
         grafo, 
         aco.melhor_rota_global, 
-        aco.historico_convergencia
+        aco.historico_melhor,
+        aco.historico_media  # Passando o histórico da média
     )
 
 if __name__ == "__main__":
