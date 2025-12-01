@@ -1,0 +1,6 @@
+RELATORIO FINAL - OTIMIZACAO POR COLONIA DE FORMIGAS
+====================================================
+Melhor Distancia Encontrada: 307.5678
+====================================================
+Sequencia de Cidades (Rota):
+12 -> 11 -> 10 -> 13 -> 9 -> 8 -> 7 -> 6 -> 5 -> 4 -> 3 -> 2 -> 1
