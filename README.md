@@ -94,25 +94,29 @@ O gráfico abaixo ilustra a performance do algoritmo:
 
 ## 📂 Estrutura de Arquivos
 
+A organização do repositório contém o código, os dados e a documentação acadêmica (Artigo e Slides):
+
 ```text
 trabalho-aco-tsp/
 │
-├── README.md               # Documentação do projeto
+├── README.md               # Documentação do projeto (este arquivo)
+│
+├── artigo.pdf              # 📄 Artigo Científico (Entrega Oficial - Opção 1)
+├── apresentacao.pdf        # 📽️ Slides para a Apresentação
 │
 ├── input/
-│   └── cidades.txt         # Dataset (Berlin52)
+│   └── cidades.txt         # Dataset (Berlin52 - TSPLIB)
 │
-├── output/                 # Resultados gerados
-│   ├── resultado.txt       # Relatório textual
-│   ├── grafico_final.png   # Gráficos de análise
+├── output/                 # Resultados gerados pelo algoritmo
+│   ├── resultado.txt       # Relatório textual da melhor rota
+│   ├── grafico_final.png   # Gráfico de Convergência
 │   └── snap_geracao_*.png  # Snapshots da evolução
 │
-└── src/                    # Código Fonte
-    ├── main.py             # Orquestrador
-    ├── aco.py              # Lógica da Colônia
+└── src/                    # Código Fonte Python
+    ├── main.py             # Arquivo principal (Executar este arquivo)
+    ├── aco.py              # Lógica da Colônia (AntColony)
     ├── graph.py            # Matrizes de Distância
-    └── utils.py            # I/O e Plotagem
-````
+    └── utils.py            # Funções de I/O e Gráficos
 
 -----
 
